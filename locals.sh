@@ -1,12 +1,5 @@
 #!/usr/bin/env sh
 
-# Protect against double loading and register dependencies
-if printf %s\\n "${MG_MODULES:-}"|grep -q "locals"; then
-  return
-else
-  MG_MODULES="${MG_MODULES:-} locals"
-fi
-
 # Set this to force home-made implementation in favour of local builtin
 __MG_LOCALS_FORCE=${__MG_LOCALS_FORCE:-0}
 
