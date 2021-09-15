@@ -25,13 +25,49 @@ jobs:
         uses: Mitigram/gh-action-versioning@v0.1.0
 
       - name: Create Storage
-        run: mkdir -p pack/mg.sh-${{ steps.semver.outputs.semver }}
+        run: mkdir -p pack/mg-${{ steps.semver.outputs.semver }}.sh
 
       - name: Pack
-        run: bin/pack.sh -o pack/mg.sh-${{ steps.semver.outputs.semver }}/mg.sh
+        run: bin/pack.sh -o pack/mg-${{ steps.semver.outputs.semver }}.sh/mg.sh
 
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: mg.sh
+          name: mg-${{ steps.semver.outputs.semver }}.sh
           path: pack/**/*.sh
+
+      - name: Cleanup
+        run: rm -rf pack
+
+  release:
+    name: Relase
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Discover the semantic version to use
+      - name: Semantic build-version
+        id: semver
+        uses: Mitigram/gh-action-versioning@v0.1.0
+
+      - name: Create Release directory
+        run: mkdir -p mg-${{ steps.semver.outputs.semver }}.sh
+
+      - name: Pack
+        run: bin/pack.sh -o mg-${{ steps.semver.outputs.semver }}.sh/mg.sh
+
+      - name: Add static files
+        run: cp README.md CHANGELOG.md LICENSE mg-${{ steps.semver.outputs.semver }}.sh/
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            mg-${{ steps.semver.outputs.semver }}.sh/*
+
+      - name: Cleanup
+        run: rm -rf mg-${{ steps.semver.outputs.semver }}.sh
