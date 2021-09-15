@@ -23,6 +23,3 @@ of modules is:
   features.
 + `text` provides text-oriented utility functions.
 
-## v0.0.1
-
-Never released
