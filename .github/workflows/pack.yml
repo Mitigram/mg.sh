@@ -56,17 +56,18 @@ jobs:
 
       - name: Create Directories
         run: |
-          mkdir -p ${{ runner.temp }}/mg-${{ steps.semver.outputs.semver }}.sh
+          mkdir -p ${{ runner.temp }}/release
 
       - name: Pack
-        run: bin/pack.sh -o ${{ runner.temp }}/mg-${{ steps.semver.outputs.semver }}.sh/mg.sh
+        run: bin/pack.sh -o ${{ runner.temp }}/release/mg-${{ steps.semver.outputs.semver }}.sh
 
       - name: Add static files
-        run: cp README.md CHANGELOG.md LICENSE ${{ runner.temp }}/mg-${{ steps.semver.outputs.semver }}.sh/
+        run: cp README.md CHANGELOG.md LICENSE ${{ runner.temp }}/release/
 
       - name: Create Release Notes
         run: |
           awk "/^## / { p=0 }; p; /^## ${{ steps.semver.outputs.tag }}/ { p=1 }" CHANGELOG.md > ${{ runner.temp }}/relnotes.md
+          cat "${{ runner.temp }}/relnotes.md"
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -76,4 +77,4 @@ jobs:
           body: ${{ steps.semver.outputs.tag }}
           body_path: ${{ runner.temp }}/relnotes.md
           files: |
-            ${{ runner.temp }}/mg-${{ steps.semver.outputs.semver }}.sh/*
+            ${{ runner.temp }}/release/*

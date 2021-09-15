@@ -22,3 +22,7 @@ of modules is:
 + `portability` provides pure-shell replacements for GNU or Linux specific
   features.
 + `text` provides text-oriented utility functions.
+
+## v0.0.1
+
+Never released
