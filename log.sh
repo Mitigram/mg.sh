@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 # When run at the terminal, the default is to set MG_INTERACTIVE to be 1,
 # turning on colouring for all calls to the colouring functions contained here.

@@ -13,3 +13,21 @@ To make a release:
 
 The release workflow should automatically generate a GitHub release with this
 information.
+
+## Shebang
+
+This library targets most existing POSIX compatible environments. It uses the
+following shebang throughout, as it is the one that seems to be the most
+compatible one.
+
+```shell
+#!/bin/sh
+```
+
+This shebang, directly accessing `sh`, will work:
+
++ In regular distributions: tested `ubuntu`, `fedora`, `archlinux` and `gentoo`
+  (`uclibc`) via their containers.
++ In slimmed downed distributions: tested `alpine` via its container.
++ In busybox-like environments: tested `busybox` and `toybox` via their
+  containers.

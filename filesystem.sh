@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 is_abspath() {
   case "$1" in

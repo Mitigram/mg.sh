@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 # Set this to force home-made implementation in favour of local builtin
 __MG_PORTABILITY_FORCE=${__MG_PORTABILITY_FORCE:-0}
