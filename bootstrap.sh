@@ -1,19 +1,33 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 # Declare MG_LIBPATH
 if [ -n "${BASH:-}" ]; then
   # shellcheck disable=SC3028,SC3054 # We know BASH_SOURCE only exists under bash!
   MG_LIBPATH=${MG_LIBPATH:-$(dirname "${BASH_SOURCE[0]}")}
 else
-  # Introspect by asking which file descriptors the current process has opened,
-  # removing /dev, the last files is the source to this script, as long as this
-  # is called ealy on in the script. This is an evolution of
-  # https://unix.stackexchange.com/a/351658
-  MG_LIBPATH=${MG_LIBPATH:-$(dirname "$(lsof -p $$ -Fn0 2>/dev/null |
+  # Introspect by asking which file descriptors the current process has opened.
+  # This is an evolution of https://unix.stackexchange.com/a/351658 and works as
+  # follows:
+  # 1. lsof is called to list out open files. lsof will have different
+  #    results/outputs depending on the shell used. For example, when using
+  #    busybox, there are few built-ins.
+  # 2. Remove the \0 to be able to understand the result as text
+  # 3. Transform somewhat the output of lsof on "normal" distros/shell to
+  #    something that partly resembles lsof on busybox, i.e. file descritor id,
+  #    followed by space, followed by file spec.
+  # 4. Remove irrelevant stuff, these have a tendency to happen after the file
+  #    that we are looking for. This is because the pipe implementing this is
+  #    active, so binaries, devices, etc. will be opened when it runs in order
+  #    to implement it. So we remove /dev references, pipe: (busybox), and all
+  #    references to the binaries used when implementing the pipe itself.
+  # 5. The file we are looking for is the last whitespace separated field of the
+  #    last line.
+  MG_LIBPATH=${MG_LIBPATH:-$(dirname "$(lsof -p "$$" -Fn0 2>/dev/null |
                                         tr -d '\0' |
-                                        grep -vE '^f[0-9]+n/dev' |
+                                        sed -E 's/^f([0-9]+)n(.*)/\1 \2/g' |
+                                        grep -vE -e '\s+(/dev|pipe:)' -e '[a-z/]*/bin/(tr|grep|lsof|tail|sed|awk)' |
                                         tail -n 1 |
-                                        sed -E 's/^f[0-9]+n//')")}
+                                        awk '{print $NF}')")}
 fi
 
 # Protect against double loading
