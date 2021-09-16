@@ -25,7 +25,7 @@ elif command -v "lsof" >/dev/null 2>&1; then
   MG_LIBPATH=${MG_LIBPATH:-$(dirname "$(lsof -p "$$" -Fn0 2>/dev/null |
                                         tr -d '\0' |
                                         sed -E 's/^f([0-9]+)n(.*)/\1 \2/g' |
-                                        grep -vE -e '\s+(/dev|pipe:)' -e '[a-z/]*/bin/(tr|grep|lsof|tail|sed|awk)' |
+                                        grep -vE -e '\s+(/dev|pipe:|socket:)' -e '[a-z/]*/bin/(tr|grep|lsof|tail|sed|awk)' |
                                         tail -n 1 |
                                         awk '{print $NF}')")}
 else
@@ -49,7 +49,7 @@ else
   # shellcheck disable=SC2010 # We believe this is ok in the context of /proc
   MG_LIBPATH=${MG_LIBPATH:-$(ls -tul "/proc/$$/fd" 2>/dev/null |
                                         grep -oE '[0-9]+\s+->\s+.*' |
-                                        grep -vE -e '\s+(/dev|pipe:)' -e '[a-z/]*/bin/(ls|grep|tail|sed|awk)'|
+                                        grep -vE -e '\s+(/dev|pipe:|socket:)' -e '[a-z/]*/bin/(ls|grep|tail|sed|awk)'|
                                         tail -n 1 |
                                         awk '{print $NF}' |
                                         sed -E 's~/[^/]+$~~')}
