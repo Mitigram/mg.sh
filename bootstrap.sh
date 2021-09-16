@@ -4,7 +4,7 @@
 if [ -n "${BASH:-}" ]; then
   # shellcheck disable=SC3028,SC3054 # We know BASH_SOURCE only exists under bash!
   MG_LIBPATH=${MG_LIBPATH:-$(dirname "${BASH_SOURCE[0]}")}
-else
+elif command -v "lsof" >/dev/null 2>&1; then
   # Introspect by asking which file descriptors the current process has opened.
   # This is an evolution of https://unix.stackexchange.com/a/351658 and works as
   # follows:
@@ -28,6 +28,31 @@ else
                                         grep -vE -e '\s+(/dev|pipe:)' -e '[a-z/]*/bin/(tr|grep|lsof|tail|sed|awk)' |
                                         tail -n 1 |
                                         awk '{print $NF}')")}
+else
+  # Introspect by checking which file descriptors the current process has
+  # opened as of under the /proc tree.
+  # 1. List opened file descriptors for the current process, sorted by last
+  #    access time. Listing is in long format to be able to catch the trailing
+  #    -> that will point to the real location of the file.
+  # 2. Isolate the symlinking part of the ls -L listing.
+  # 3. Remove irrelevant stuff, these have a tendency to happen after the file
+  #    that we are looking for. This is because the pipe implementing this is
+  #    active, so binaries, devices, etc. will be opened when it runs in order
+  #    to implement it. So we remove /dev references, pipe: (busybox), and all
+  #    references to the binaries used when implementing the pipe itself.
+  # 4. The file we are looking for is the last whitespace separated field of
+  #    the last line.
+  # 5. Finally, use sed to remove the /bootstrap.sh (likely) from the end of
+  #    the name. We do not use dirname on purpose as this would introduce yet
+  #    another process to filter out and reason about.
+
+  # shellcheck disable=SC2010 # We believe this is ok in the context of /proc
+  MG_LIBPATH=${MG_LIBPATH:-$(ls -tul "/proc/$$/fd" 2>/dev/null |
+                                        grep -oE '[0-9]+\s+->\s+.*' |
+                                        grep -vE -e '\s+(/dev|pipe:)' -e '[a-z/]*/bin/(ls|grep|tail|sed|awk)'|
+                                        tail -n 1 |
+                                        awk '{print $NF}' |
+                                        sed -E 's~/[^/]+$~~')}
 fi
 
 # Protect against double loading
