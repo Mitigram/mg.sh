@@ -23,6 +23,8 @@ jobs:
         id: semver
         uses: Mitigram/gh-action-versioning@v0.1.0
 
+      # TODO: Add testing step
+
       - name: Create Storage
         run: mkdir -p pack/mg-${{ steps.semver.outputs.semver }}.sh
 
@@ -53,6 +55,8 @@ jobs:
         id: semver
         uses: Mitigram/gh-action-versioning@v0.1.0
 
+      # TODO: Add testing step
+
       - name: Create Directories
         run: |
           mkdir -p ${{ runner.temp }}/release
@@ -63,11 +67,21 @@ jobs:
       - name: Add static files
         run: cp README.md CHANGELOG.md LICENSE ${{ runner.temp }}/release/
 
+      # Extract release notes from the CHANGELOG.md file. In the awk script, p
+      # is a flag and means: should we print? This works by turning on printing
+      # as soon as awk encounters a line that start with ## and contain then the
+      # tag of the release. Printing is turned off at the next section (i.e.
+      # next time awk encounters ## again)
       - name: Create Release Notes
         run: |
           awk "/^## / { p=0 }; p; /^## ${{ steps.semver.outputs.tag }}/ { p=1 }" CHANGELOG.md > ${{ runner.temp }}/relnotes.md
           cat "${{ runner.temp }}/relnotes.md"
 
+      # Whereever the files are located down the area that we have prepared for
+      # the release, they will be picked and form the files available as part of
+      # the relase at GitHub, without any sub-directories. In other words, the
+      # content of the release directory that we have created will be flattened
+      # out when releasing.
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
