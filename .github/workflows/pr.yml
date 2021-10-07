@@ -19,7 +19,7 @@ jobs:
       - name: Unit Tests
         run: |
           docker run \
-            -it --rm \
+            --rm \
             -v $(pwd):/mg.sh \
             -w /mg.sh \
             -u $(id -u):$(id -g) \
