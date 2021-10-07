@@ -1,9 +1,9 @@
+# Run all shellspec tests on PRs.
 name: Pull Request
 
 on:
-  push:
-    branches:
-      - 'feature/*'
+  pull_request:
+
 
 jobs:
   test:
@@ -20,7 +20,7 @@ jobs:
         run: |
           docker run \
             --rm \
-            -v $(pwd):/mg.sh \
+            -v $(pwd):/mg.sh:ro \
             -w /mg.sh \
             -u $(id -u):$(id -g) \
             shellspec/shellspec \
