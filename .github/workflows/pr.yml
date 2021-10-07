@@ -23,4 +23,5 @@ jobs:
             -v $(pwd):/mg.sh \
             -w /mg.sh \
             -u $(id -u):$(id -g) \
-            shellspec/shellspec
+            shellspec/shellspec \
+              --format d
