@@ -56,7 +56,7 @@ Describe 'bootstrap.sh'
     It 'Fails finding an unknown file'
       When call path_search "${MG_LIBPATH}:$(dirname "$SHELLSPEC_SPECFILE")" _unKNOwn___.sh
       The status should be success
-      The output should equal "dfgdfgfdggfdgfgfdg"
+      The output should equal ""
     End
   End
 End
